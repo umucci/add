@@ -229,4 +229,477 @@
 
     .section-title {
       font-size: var(--text-lg);
-      line-height: 
+      line-height: 1.2;
+    }
+
+    .field label {
+      font-size: var(--text-sm);
+      font-weight: 700;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      min-height: 3rem;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      background: var(--color-bg);
+    }
+
+    .field textarea {
+      min-height: 7rem;
+      resize: vertical;
+    }
+
+    .field input::placeholder,
+    .field textarea::placeholder {
+      color: var(--color-text-faint);
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--color-primary);
+      outline: none;
+    }
+
+    .btn {
+      min-height: 48px;
+      padding: 0.9rem 1.2rem;
+      border-radius: 9999px;
+      font-size: var(--text-sm);
+      font-weight: 700;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: var(--color-text-inverse);
+    }
+
+    .btn-primary:hover,
+    .theme-toggle:hover,
+    .sort-button:hover,
+    .like-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:hover { background: var(--color-primary-hover); }
+
+    .board-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .request-list { display: grid; gap: 1rem; }
+
+    .request-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      padding: 1.25rem;
+      border-radius: var(--radius-xl);
+      background: var(--color-surface);
+      border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .request-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0.2rem 0.7rem;
+      border-radius: 9999px;
+      font-size: var(--text-xs);
+      font-weight: 700;
+    }
+
+    .chip-type {
+      background: var(--color-primary-highlight);
+      color: var(--color-primary);
+    }
+
+    .chip-status {
+      background: color-mix(in srgb, var(--color-success) 14%, transparent);
+      color: var(--color-success);
+    }
+
+    .request-card h3 {
+      font-size: var(--text-lg);
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+    }
+
+    .request-foot {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      font-size: var(--text-sm);
+    }
+
+    .like-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-width: 90px;
+    }
+
+    .like-button {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+    }
+
+    .likes-count {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .likes-label {
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .empty-state {
+      padding: 2.5rem;
+      text-align: center;
+      border: 1px dashed var(--color-border);
+      border-radius: var(--radius-xl);
+      background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+    }
+
+    .toast {
+      position: fixed;
+      right: 1rem;
+      bottom: 1rem;
+      padding: 0.9rem 1rem;
+      border-radius: var(--radius-lg);
+      background: var(--color-text);
+      color: var(--color-text-inverse);
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      transform: translateY(16px);
+      pointer-events: none;
+      transition: opacity var(--transition-interactive), transform var(--transition-interactive);
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+      .request-card { grid-template-columns: 1fr; }
+      .like-area { flex-direction: row; justify-content: flex-start; min-width: 0; }
+    }
+
+    @media (max-width: 640px) {
+      .page { width: min(calc(100% - 1rem), var(--content-wide)); padding-top: 1rem; }
+      .topbar, .board-header { flex-direction: column; align-items: stretch; }
+      .hero-copy, .request-form { padding: 1.25rem; }
+      .stats { grid-template-columns: 1fr; }
+      .topbar-actions { justify-content: space-between; }
+      .sort-button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <a class="sr-only" href="#main">Skip to content</a>
+
+  <div class="page">
+    <header class="topbar" aria-label="Site header">
+      <a class="brand" href="#top" aria-label="Media Request Board home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="6" y="8" width="26" height="32" rx="7" stroke="currentColor" stroke-width="3"/>
+            <path d="M18 16H36C38.7614 16 41 18.2386 41 21V32C41 34.7614 38.7614 37 36 37H32" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="19" cy="24" r="5" fill="currentColor"/>
+          </svg>
+        </span>
+        <span>Media Request Board</span>
+      </a>
+
+      <div class="topbar-actions">
+        <button class="sort-button" id="sortButton" type="button" aria-label="Sort requests by likes">Sort by likes</button>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch color theme">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-label="Request overview">
+        <div class="panel hero-copy">
+          <div class="eyebrow">Cloudflare Pages + D1</div>
+          <h1>Let people request movies and shows, then vote them up.</h1>
+          <p>This version stores requests and likes in Cloudflare D1, so results stay saved after refresh and redeploys.</p>
+
+          <div class="stats" aria-label="Board stats">
+            <div class="stat">
+              <div class="stat-label">Requests</div>
+              <div class="stat-value" id="requestTotal">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Total likes</div>
+              <div class="stat-value" id="likeTotal">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Top request</div>
+              <div class="stat-value" id="topRequest">None</div>
+            </div>
+          </div>
+        </div>
+
+        <form class="panel request-form" id="requestForm">
+          <div>
+            <h2 class="section-title">Add a request</h2>
+            <p class="helper">Works with Pages Functions and a D1 binding named DB.</p>
+          </div>
+
+          <div class="field">
+            <label for="title">Title</label>
+            <input id="title" name="title" type="text" maxlength="80" placeholder="Example: Severance" required />
+          </div>
+
+          <div class="field">
+            <label for="type">Type</label>
+            <select id="type" name="type">
+              <option value="TV Show">TV Show</option>
+              <option value="Movie">Movie</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="details">Why add it?</label>
+            <textarea id="details" name="details" maxlength="220" placeholder="Optional note for the admin or server owner."></textarea>
+          </div>
+
+          <div class="field">
+            <label for="requestedBy">Requested by</label>
+            <input id="requestedBy" name="requestedBy" type="text" maxlength="32" placeholder="Your name or handle" />
+          </div>
+
+          <button class="btn btn-primary" type="submit">Submit request</button>
+        </form>
+      </section>
+
+      <section aria-labelledby="requests-heading">
+        <div class="board-header">
+          <div>
+            <h2 id="requests-heading" class="section-title">Requests</h2>
+            <p>Each card shows the title, who requested it, and how many likes it has.</p>
+          </div>
+        </div>
+
+        <div class="request-list" id="requestList"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const state = {
+      theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+      sortDesc: true,
+      requests: []
+    };
+
+    const requestList = document.getElementById('requestList');
+    const requestForm = document.getElementById('requestForm');
+    const sortButton = document.getElementById('sortButton');
+    const themeToggle = document.getElementById('themeToggle');
+    const toast = document.getElementById('toast');
+    const requestTotal = document.getElementById('requestTotal');
+    const likeTotal = document.getElementById('likeTotal');
+    const topRequest = document.getElementById('topRequest');
+
+    function setTheme(theme) {
+      state.theme = theme;
+      document.documentElement.setAttribute('data-theme', theme);
+      themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      themeToggle.innerHTML = theme === 'dark'
+        ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>'
+        : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('visible');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove('visible'), 1800);
+    }
+
+    function formatRelative(dateString) {
+      const date = new Date(dateString);
+      const diffMs = Date.now() - date.getTime();
+      const minutes = Math.round(diffMs / 60000);
+      if (minutes < 1) return 'Just now';
+      if (minutes < 60) return minutes + 'm ago';
+      const hours = Math.round(minutes / 60);
+      if (hours < 24) return hours + 'h ago';
+      const days = Math.round(hours / 24);
+      return days + 'd ago';
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    async function fetchRequests() {
+      const response = await fetch('/api/requests');
+      if (!response.ok) throw new Error('Failed to load requests');
+      state.requests = await response.json();
+      renderRequests();
+      await fetchStats();
+    }
+
+    async function fetchStats() {
+      const response = await fetch('/api/stats');
+      if (!response.ok) return;
+      const stats = await response.json();
+      requestTotal.textContent = stats.requestCount;
+      likeTotal.textContent = stats.likeCount;
+      topRequest.textContent = stats.topRequest || 'None';
+    }
+
+    function sortedRequests() {
+      return [...state.requests].sort((a, b) => {
+        if (state.sortDesc) {
+          return b.likes - a.likes || new Date(b.created_at) - new Date(a.created_at);
+        }
+        return new Date(b.created_at) - new Date(a.created_at);
+      });
+    }
+
+    function renderRequests() {
+      const items = sortedRequests();
+
+      if (!items.length) {
+        requestList.innerHTML = '<div class="empty-state"><h3>No requests yet</h3><p>Add the first movie or TV show and let people start voting.</p></div>';
+        return;
+      }
+
+      requestList.innerHTML = items.map(item => `
+        <article class="request-card" aria-label="${escapeHtml(item.title)} request">
+          <div>
+            <div class="request-meta">
+              <span class="chip chip-type">${escapeHtml(item.type)}</span>
+              <span class="chip chip-status">Open request</span>
+            </div>
+            <h3>${escapeHtml(item.title)}</h3>
+            <p>${item.details ? escapeHtml(item.details) : 'No extra note was added for this request.'}</p>
+            <div class="request-foot">
+              <span>Requested by ${escapeHtml(item.requested_by || 'Anonymous')}</span>
+              <span>Added ${formatRelative(item.created_at)}</span>
+            </div>
+          </div>
+          <div class="like-area">
+            <button class="like-button" type="button" data-like-id="${item.id}" aria-label="Like ${escapeHtml(item.title)}">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 21s-6.716-4.35-9.193-8.258C.835 9.62 2.071 5.5 6.176 5.5c2.224 0 3.56 1.21 4.324 2.334C11.264 6.71 12.6 5.5 14.824 5.5 18.93 5.5 20.165 9.62 21.193 12.742 18.716 16.65 12 21 12 21z"></path>
+              </svg>
+            </button>
+            <div class="likes-count">${item.likes}</div>
+            <div class="likes-label">Likes</div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    requestForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(requestForm);
+      const title = (formData.get('title') || '').toString().trim();
+      if (!title) return;
+
+      const payload = {
+        title,
+        type: (formData.get('type') || 'TV Show').toString(),
+        details: (formData.get('details') || '').toString().trim(),
+        requestedBy: (formData.get('requestedBy') || '').toString().trim()
+      };
+
+      const response = await fetch('/api/requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        showToast('Could not save request.');
+        return;
+      }
+
+      requestForm.reset();
+      showToast('Request saved.');
+      await fetchRequests();
+    });
+
+    requestList.addEventListener('click', async (event) => {
+      const button = event.target.closest('[data-like-id]');
+      if (!button) return;
+
+      const id = button.dataset.likeId;
+      const response = await fetch('/api/likes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+
+      if (!response.ok) {
+        showToast('Could not save like.');
+        return;
+      }
+
+      await fetchRequests();
+    });
+
+    sortButton.addEventListener('click', () => {
+      state.sortDesc = !state.sortDesc;
+      sortButton.textContent = state.sortDesc ? 'Sort by likes' : 'Sort by newest';
+      renderRequests();
+    });
+
+    themeToggle.addEventListener('click', () => {
+      setTheme(state.theme === 'dark' ? 'light' : 'dark');
+    });
+
+    setTheme(state.theme);
+
+    fetchRequests().catch(() => {
+      requestList.innerHTML = '<div class="empty-state"><h3>Database not connected yet</h3><p>Set up your Pages Functions and D1 binding, then redeploy.</p></div>';
+    });
+  </script>
+</body>
+</html>
