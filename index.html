@@ -447,11 +447,7 @@
     const state = {
       theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
       sortDesc: true,
-      requests: [
-        { id: crypto.randomUUID(), title: 'The Bear', type: 'TV Show', details: 'A lot of people keep asking for it.', requestedBy: 'Sam', likes: 12, liked: false, createdAt: new Date('2026-06-14T15:30:00') },
-        { id: crypto.randomUUID(), title: 'Dune: Part Two', type: 'Movie', details: 'Great pick for the sci-fi crowd.', requestedBy: 'Alex', likes: 9, liked: false, createdAt: new Date('2026-06-15T20:15:00') },
-        { id: crypto.randomUUID(), title: 'Andor', type: 'TV Show', details: 'Would be a strong weekly watch option.', requestedBy: 'Jordan', likes: 7, liked: false, createdAt: new Date('2026-06-16T08:00:00') }
-      ]
+      requests: []
     };
 
     const requestList = document.getElementById('requestList');
@@ -479,7 +475,8 @@
       showToast.timer = setTimeout(() => toast.classList.remove('visible'), 1800);
     }
 
-    function formatRelative(date) {
+    function formatRelative(dateString) {
+      const date = new Date(dateString);
       const diffMs = Date.now() - date.getTime();
       const minutes = Math.round(diffMs / 60000);
       if (minutes < 1) return 'Just now';
@@ -488,59 +485,6 @@
       if (hours < 24) return hours + 'h ago';
       const days = Math.round(hours / 24);
       return days + 'd ago';
-    }
-
-    function sortedRequests() {
-      return [...state.requests].sort((a, b) => {
-        if (state.sortDesc) {
-          return b.likes - a.likes || b.createdAt - a.createdAt;
-        }
-        return a.createdAt - b.createdAt;
-      });
-    }
-
-    function updateStats() {
-      requestTotal.textContent = state.requests.length;
-      likeTotal.textContent = state.requests.reduce((sum, item) => sum + item.likes, 0);
-      const top = [...state.requests].sort((a, b) => b.likes - a.likes)[0];
-      topRequest.textContent = top ? top.title : 'None';
-    }
-
-    function renderRequests() {
-      const items = sortedRequests();
-      if (!items.length) {
-        requestList.innerHTML = '<div class="empty-state"><h3>No requests yet</h3><p>Add the first movie or TV show and let people start voting.</p></div>';
-        updateStats();
-        return;
-      }
-
-      requestList.innerHTML = items.map(item => `
-        <article class="request-card" aria-label="${item.title} request">
-          <div>
-            <div class="request-meta">
-              <span class="chip chip-type">${item.type}</span>
-              <span class="chip chip-status">Open request</span>
-            </div>
-            <h3>${escapeHtml(item.title)}</h3>
-            <p>${item.details ? escapeHtml(item.details) : 'No extra note was added for this request.'}</p>
-            <div class="request-foot">
-              <span>Requested by ${escapeHtml(item.requestedBy || 'Anonymous')}</span>
-              <span>Added ${formatRelative(item.createdAt)}</span>
-            </div>
-          </div>
-          <div class="like-area">
-            <button class="like-button ${item.liked ? 'active' : ''}" type="button" data-like-id="${item.id}" aria-label="Like ${item.title}">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="${item.liked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path d="M12 21s-6.716-4.35-9.193-8.258C.835 9.62 2.071 5.5 6.176 5.5c2.224 0 3.56 1.21 4.324 2.334C11.264 6.71 12.6 5.5 14.824 5.5 18.93 5.5 20.165 9.62 21.193 12.742 18.716 16.65 12 21 12 21z"></path>
-              </svg>
-            </button>
-            <div class="likes-count">${item.likes}</div>
-            <div class="likes-label">Likes</div>
-          </div>
-        </article>
-      `).join('');
-
-      updateStats();
     }
 
     function escapeHtml(value) {
@@ -552,36 +496,107 @@
         .replace(/'/g, '&#39;');
     }
 
-    requestForm.addEventListener('submit', (event) => {
+    async function fetchRequests() {
+      const response = await fetch('/api/requests');
+      if (!response.ok) throw new Error('Failed to load requests');
+      state.requests = await response.json();
+      renderRequests();
+      await fetchStats();
+    }
+
+    async function fetchStats() {
+      const response = await fetch('/api/stats');
+      if (!response.ok) return;
+      const stats = await response.json();
+      requestTotal.textContent = stats.requestCount;
+      likeTotal.textContent = stats.likeCount;
+      topRequest.textContent = stats.topRequest || 'None';
+    }
+
+    function sortedRequests() {
+      return [...state.requests].sort((a, b) => {
+        if (state.sortDesc) return b.likes - a.likes || new Date(b.created_at) - new Date(a.created_at);
+        return new Date(b.created_at) - new Date(a.created_at);
+      });
+    }
+
+    function renderRequests() {
+      const items = sortedRequests();
+      if (!items.length) {
+        requestList.innerHTML = '<div class="empty-state"><h3>No requests yet</h3><p>Add the first movie or TV show and let people start voting.</p></div>';
+        return;
+      }
+
+      requestList.innerHTML = items.map(item => `
+        <article class="request-card" aria-label="${escapeHtml(item.title)} request">
+          <div>
+            <div class="request-meta">
+              <span class="chip chip-type">${escapeHtml(item.type)}</span>
+              <span class="chip chip-status">Open request</span>
+            </div>
+            <h3>${escapeHtml(item.title)}</h3>
+            <p>${item.details ? escapeHtml(item.details) : 'No extra note was added for this request.'}</p>
+            <div class="request-foot">
+              <span>Requested by ${escapeHtml(item.requested_by || 'Anonymous')}</span>
+              <span>Added ${formatRelative(item.created_at)}</span>
+            </div>
+          </div>
+          <div class="like-area">
+            <button class="like-button" type="button" data-like-id="${item.id}" aria-label="Like ${escapeHtml(item.title)}">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 21s-6.716-4.35-9.193-8.258C.835 9.62 2.071 5.5 6.176 5.5c2.224 0 3.56 1.21 4.324 2.334C11.264 6.71 12.6 5.5 14.824 5.5 18.93 5.5 20.165 9.62 21.193 12.742 18.716 16.65 12 21 12 21z"></path>
+              </svg>
+            </button>
+            <div class="likes-count">${item.likes}</div>
+            <div class="likes-label">Likes</div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    requestForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       const formData = new FormData(requestForm);
       const title = (formData.get('title') || '').toString().trim();
       if (!title) return;
 
-      state.requests.unshift({
-        id: crypto.randomUUID(),
+      const payload = {
         title,
         type: (formData.get('type') || 'TV Show').toString(),
         details: (formData.get('details') || '').toString().trim(),
-        requestedBy: (formData.get('requestedBy') || '').toString().trim(),
-        likes: 0,
-        liked: false,
-        createdAt: new Date()
+        requestedBy: (formData.get('requestedBy') || '').toString().trim()
+      };
+
+      const response = await fetch('/api/requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
 
+      if (!response.ok) {
+        showToast('Could not save request.');
+        return;
+      }
+
       requestForm.reset();
-      renderRequests();
-      showToast('Request submitted.');
+      showToast('Request saved.');
+      await fetchRequests();
     });
 
-    requestList.addEventListener('click', (event) => {
+    requestList.addEventListener('click', async (event) => {
       const button = event.target.closest('[data-like-id]');
       if (!button) return;
-      const request = state.requests.find(item => item.id === button.dataset.likeId);
-      if (!request) return;
-      request.liked = !request.liked;
-      request.likes += request.liked ? 1 : -1;
-      renderRequests();
+      const id = button.dataset.likeId;
+      const response = await fetch('/api/likes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      if (!response.ok) {
+        showToast('Could not save like.');
+        return;
+      }
+      await fetchRequests();
     });
 
     sortButton.addEventListener('click', () => {
@@ -593,7 +608,9 @@
     themeToggle.addEventListener('click', () => setTheme(state.theme === 'dark' ? 'light' : 'dark'));
 
     setTheme(state.theme);
-    renderRequests();
+    fetchRequests().catch(() => {
+      requestList.innerHTML = '<div class="empty-state"><h3>Database not connected yet</h3><p>Set up your Pages Functions and D1 binding, then redeploy.</p></div>';
+    });
   </script>
 </body>
 </html>

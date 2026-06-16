@@ -1,23 +1,33 @@
-# Cloudflare Pages setup
+# Cloudflare Pages + D1 request site
 
-Use this folder structure for a simple static Cloudflare Pages deployment.
+This version saves requests and likes in Cloudflare D1 using Pages Functions.
 
-## Repo layout
+## Files
 
 - public/index.html
+- functions/api/requests/index.js
+- functions/api/likes/index.js
+- functions/api/stats/index.js
+- schema.sql
 
-## Cloudflare Pages settings
+## Cloudflare setup
 
-- Framework preset: None
-- Build command: exit 0
-- Build output directory: public
+1. Create a Cloudflare Pages project from this repo.
+2. Use:
+   - Framework preset: None
+   - Build command: exit 0
+   - Build output directory: public
+3. Create a D1 database in Cloudflare.
+4. In the Pages project, go to Settings > Bindings.
+5. Add a D1 binding:
+   - Variable name: DB
+   - Database: your new D1 database
+6. In the D1 database console, run the SQL from schema.sql.
+7. Redeploy the Pages project.
 
-## Domain
+## What it does
 
-After deployment, attach your custom domain such as requests.yourdomain.com in Workers & Pages > your project > Custom domains.
-
-## Notes
-
-- Do not use `npx wrangler deploy` for this Pages setup.
-- The site is static and client-side only.
-- Likes and requests reset on refresh unless you later connect a database.
+- POST /api/requests creates a request
+- GET /api/requests lists requests
+- POST /api/likes increments likes
+- GET /api/stats returns summary stats
