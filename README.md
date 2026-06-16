@@ -10,7 +10,7 @@ This version saves requests and likes in Cloudflare D1 using Pages Functions.
 - functions/api/stats/index.js
 - schema.sql
 
-## Cloudflare setup
+## Cloudflare setu
 
 1. Create a Cloudflare Pages project from this repo.
 2. Use:
