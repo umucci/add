@@ -1,0 +1,4 @@
+name = "add"
+compatibility_date = "2026-06-16"
+
+assets = { directory = "./public" }
